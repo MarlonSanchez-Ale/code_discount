@@ -19,7 +19,7 @@ const generateUniqueCode = () => {
 
 export async function POST(req) {
 
-    const { nombre, apellido, telefono, direccion } = await req.json();;
+    const { nombre, apellido, telefono, direccion } = await req.json();
     if (!nombre || !apellido || !telefono || !direccion) {
         return NextResponse.json({ message: 'Faltan datos requeridos.' }, { status: 400 });
     }
