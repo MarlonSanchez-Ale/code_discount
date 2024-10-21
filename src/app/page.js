@@ -113,7 +113,7 @@ const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage }) => 
         <p className=" font-light text-red-400">{errors.apellido?.message}</p>
         <input
           type="tel"
-          id='name'
+          id='telefono'
           placeholder='Número de teléfono'
           {...register('telefono')}
           className=' text-white rounded-md shadow-md bg-black border border-white p-2 font-light w-full'
@@ -121,7 +121,7 @@ const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage }) => 
         <p className="font-light text-red-400">{errors.telefono?.message}</p>
         <input
           type="text"
-          id='name'
+          id='direccion'
           placeholder='Dirección'
           {...register('direccion')}
           className=' text-white rounded-md shadow-md bg-black border border-white p-2 font-light w-full'

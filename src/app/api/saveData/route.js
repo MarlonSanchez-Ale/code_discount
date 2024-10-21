@@ -74,6 +74,6 @@ export async function POST(req) {
         return NextResponse.json({ message: 'Cliente registrado con éxito.', name: nombre, discountCode: uniqueDiscountCode }, { status: 200 });
     } catch (error) {
         console.error('Error al interactuar con Google Sheets:', error);
-        return NextResponse.json({ message: 'Error interno del servidor.', error: error.message }, { status: 500 });
+        return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }
