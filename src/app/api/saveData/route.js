@@ -28,6 +28,10 @@ export async function POST(req) {
     try {
         // Ruta hacia el archivo de credenciales JSON
         const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+        if (!credentials) {
+            console.error('Las credenciales de Google no están configuradas.');
+            return NextResponse.json({ message: 'Error de configuración.' }, { status: 500 });
+        }
         // Autenticación con Google Sheets
         const auth = new google.auth.GoogleAuth({
             credentials, // Usamos las credenciales cargadas desde el archivo
