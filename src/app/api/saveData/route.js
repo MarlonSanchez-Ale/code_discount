@@ -23,6 +23,11 @@ export async function POST(req) {
     }
     let uniqueDiscountCode;
 
+    if (!process.env.GOOGLE_CREDENTIALS) {
+        console.error('Las credenciales de Google no están configuradas.');
+        return NextResponse.json({ message: 'Error de configuración.' }, { status: 500 });
+    }
+
     try {
         // Ruta hacia el archivo de credenciales JSON
         const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
