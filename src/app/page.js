@@ -222,7 +222,7 @@ const CodeGivawey = ({ isConfettiVisible, balloonAnimation, name, discountCode }
       <div className='flex flex-col justify-center gap-4 text-center'>
         <div className='flex flex-col justify-center gap-3'>
           <h1 className=' text-3xl text-gray-200 font-bold'>{`¡Felicidades, ${name}!`}</h1>
-          <p className='text-xl text-gray-400 font-light'>Toma captura y mostrá tu código en tienda o en compras en línea</p>
+          <p className='text-xl text-gray-400 font-light'>Tomá captura y mostrá tu código en tienda o en compras en línea</p>
         </div>
         <div className=' bg-black p-10 rounded-md shadow-md'>
           <h2 className='sm:text-4xl lg:text-7xl font-bold text-gray-50'>{discountCode}</h2>
