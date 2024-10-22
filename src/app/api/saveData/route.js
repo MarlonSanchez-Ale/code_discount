@@ -34,6 +34,8 @@ export async function POST(req) {
         if (!credentials) {
             console.error('Las credenciales de Google no están configuradas.');
             return NextResponse.json({ message: 'Error de configuración.' }, { status: 500 });
+        } else {
+            console.log(credentials)
         }
         // Autenticación con Google Sheets
         const auth = new google.auth.GoogleAuth({
