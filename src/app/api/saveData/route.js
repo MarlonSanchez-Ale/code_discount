@@ -7,7 +7,7 @@ config(); // Carga las variables de entorno desde el archivo .env
 
 // ACCESOS A GOOGLE SHEETS
 const SHEET_ID = "1Tmz3HmJNd88bOpYnHHokemzj0BjuvP0huYR2itRgiIo";
-const SHEET_RANGE = 'descuentos!A:E'; // Asegúrate de que el rango sea correcto
+const SHEET_RANGE = 'descuentos!A:F'; // Asegúrate de que el rango sea correcto
 
 const generateUniqueCode = () => {
     const alphabet = '0123456789';
@@ -23,6 +23,14 @@ function normalizeString(str) {
         .replace(/[\u0300-\u036f]/g, ''); // Elimina los diacríticos (tildes)
 }
 
+function getCurrentDateTime() {
+    const now = new Date();
+    // Ajustar a la zona horaria local (Nicaragua está en UTC-6)
+    const utcOffset = -6; // Ajuste en horas para UTC-6
+    const localDateTime = new Date(now.getTime() + utcOffset * 60 * 60 * 1000);
+    // Formato: YYYY-MM-DD HH:mm:ss
+    return localDateTime.toISOString().slice(0, 19).replace('T', ' ');
+}
 
 export async function POST(req) {
 
@@ -92,13 +100,16 @@ export async function POST(req) {
             uniqueDiscountCode = generateUniqueCode();
         } while (sheetData.some((row) => row[4] === uniqueDiscountCode)); // Verifica si el código ya existe
 
+         // Obtener la fecha y hora actuales
+         const registrationDateTime = getCurrentDateTime();
+
         // Si no existe, agrega el cliente a la hoja de cálculo
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
             range: SHEET_RANGE,
             valueInputOption: 'USER_ENTERED',
             resource: {
-                values: [[nombre, apellido, telefono, direccion, uniqueDiscountCode]], // Guarda el código único
+                values: [[nombre, apellido, telefono, direccion, uniqueDiscountCode, registrationDateTime]], // Guarda el código único
             },
         });
 
