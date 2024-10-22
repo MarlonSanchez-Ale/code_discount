@@ -28,12 +28,17 @@ export default function Home() {
   const [name, setName] = useState("")
   const [discountCode, setDiscountCode] = useState(""); // Estado para el código de descuento
   const [errorMessage, setErrorMessage] = useState(""); // Estado para mensajes de error 
+  const [isButtonClicked, setButtonClicked] = useState(false);
+
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
   });
 
+
   const onSubmit = async (data) => {
+    setButtonClicked(true);
+    setTimeout(() => setButtonClicked(false), 300);
     try {
       const response = await fetch('/api/saveData', {
         method: 'POST',
@@ -73,6 +78,7 @@ export default function Home() {
           balloonAnimation={balloonAnimation}
           name={name}
           discountCode={discountCode}
+          
         />
         :
         <Welcome
@@ -80,13 +86,17 @@ export default function Home() {
           onSubmit={onSubmit}
           register={register}
           errors={errors}
-          errorMessage={errorMessage} />}
+          errorMessage={errorMessage} 
+          isButtonClicked={isButtonClicked}
+          />}
+  
     </div>
   );
 }
 
 
-const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage }) => {
+const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage, isButtonClicked }) => {
+
   return (
     <>
       <div className='flex flex-col justify-center sm:gap-3 text-center' style={{ margin: 0 }}>
@@ -129,7 +139,7 @@ const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage }) => 
         <p className="font-light text-red-400">{errors.correo?.message}</p>
         <button
           type="submit"
-          className='bg-rose-600 p-2 shadow-md font-bold rounded-md'
+          className={`bg-rose-600 p-2 shadow-md font-bold rounded-md transition-transform duration-150 ${isButtonClicked ? 'scale-95' : 'scale-100'} hover:scale-105`}
         >
           Obtené tu descuento
         </button>
@@ -143,7 +153,7 @@ Welcome.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   register: PropTypes.func.isRequired,
   errors: PropTypes.object.isRequired,
-
+  isButtonClicked: PropTypes.object.isRequired
 }
 
 
@@ -152,9 +162,8 @@ const CodeGivawey = ({ isConfettiVisible, balloonAnimation, name, discountCode }
     <>
       <div className='flex flex-col justify-center gap-4 text-center'>
         <div className='flex flex-col justify-center gap-3'>
-          <h1 className=' text-3xl text-gray-200 font-bold'>{`Felicidades, ${name}`}</h1>
+          <h1 className=' text-3xl text-gray-200 font-bold'>{`¡Felicidades, ${name}!`}</h1>
           <p className='text-xl text-gray-400 font-light'>Mostrá tu código en tienda o en compras en línea</p>
-
         </div>
         <div className=' bg-black p-10 rounded-md shadow-md'>
           <h2 className='sm:text-4xl lg:text-7xl font-bold text-gray-50'>{discountCode}</h2>
