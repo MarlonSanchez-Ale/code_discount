@@ -58,9 +58,23 @@ export async function POST(req) {
         const sheetData = await getSheetData();
 
         // Verifica si el cliente ya está registrado
-        const clientExists = sheetData.some((row) => row[0] === nombre); // Verifica si el nombre ya existe
+        const clientExists = sheetData.find((row) =>
+            row[0] === nombre &&
+            row[1] === apellido
+        );
+
         if (clientExists) {
-            return NextResponse.json({ message: 'El cliente ya está registrado y tiene un descuento.' }, { status: 400 });
+            const existingNombre = clientExists[0];
+            const existingApellido = clientExists[1];
+            const discountCode = clientExists[4];
+
+            return NextResponse.json({
+                message: 'El cliente ya está registrado.',
+                name: `${existingNombre} ${existingApellido}`,
+                discountCode
+            }, {
+                status: 400
+            });
         }
 
         // Generar un código único y asegurarse de que no exista
@@ -81,6 +95,6 @@ export async function POST(req) {
         return NextResponse.json({ message: 'Cliente registrado con éxito.', name: nombre, discountCode: uniqueDiscountCode }, { status: 200 });
     } catch (error) {
         console.error('Error al interactuar con Google Sheets:', error);
-        return NextResponse.json({ message: 'Error al obtener datos.'}, { status: 500 });
+        return NextResponse.json({ message: 'Error al obtener datos.' }, { status: 500 });
     }
 }

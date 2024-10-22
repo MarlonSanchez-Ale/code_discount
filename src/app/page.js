@@ -8,6 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import Confetti from "react-confetti";
 import { useSpring, animated } from "react-spring";
+import ClipLoader from 'react-spinners/ClipLoader';
 
 const schema = yup.object({
   nombre: yup.string()
@@ -29,16 +30,20 @@ export default function Home() {
   const [discountCode, setDiscountCode] = useState(""); // Estado para el código de descuento
   const [errorMessage, setErrorMessage] = useState(""); // Estado para mensajes de error 
   const [isButtonClicked, setButtonClicked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
+  const [isClientExisting, setClientExisting] = useState(false); // Estado para el popup del cliente existente
+  const [existingClientData, setExistingClientData] = useState({ name: '', discountCode: '' }); // Información del cliente existente
 
-
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(schema)
   });
 
 
   const onSubmit = async (data) => {
+    setIsLoading(true); // Iniciar carga
     setButtonClicked(true);
     setTimeout(() => setButtonClicked(false), 300);
+
     try {
       const response = await fetch('/api/saveData', {
         method: 'POST',
@@ -47,20 +52,35 @@ export default function Home() {
       });
 
       const result = await response.json();
+
       if (response.ok) {
-        setName(result.name)
+        setName(result.name);
         setDiscountCode(result.discountCode);
-        setState(true);
+        setState(true); // Mostrar la interfaz de éxito
         setConfettiVisible(true);
         setTimeout(() => setConfettiVisible(false), 5000);
+        reset()
       } else {
-        setErrorMessage(result.message); // Muestra el mensaje si hay algún error
+        if (response.status === 400 && result.message.includes('El cliente ya está registrado')) {
+          // Si el cliente ya existe, mostrar popup con nombre y código de descuento
+          setExistingClientData({
+            name: result.name,
+            discountCode: result.discountCode
+          });
+          setClientExisting(true); // Mostrar el popup del cliente existente
+          reset()
+        } else {
+          setErrorMessage(result.message); // Mostrar otros errores
+        }
       }
     } catch (error) {
       console.error('Error al enviar los datos:', error);
       setErrorMessage("Ocurrió un error. Inténtalo de nuevo.");
+    } finally {
+      setIsLoading(false); // Finalizar carga
     }
   };
+
 
   const balloonAnimation = useSpring({
     transform: isConfettiVisible ? "translateY(0px)" : "translateY(-500px)",
@@ -78,7 +98,7 @@ export default function Home() {
           balloonAnimation={balloonAnimation}
           name={name}
           discountCode={discountCode}
-          
+
         />
         :
         <Welcome
@@ -86,16 +106,23 @@ export default function Home() {
           onSubmit={onSubmit}
           register={register}
           errors={errors}
-          errorMessage={errorMessage} 
+          errorMessage={errorMessage}
           isButtonClicked={isButtonClicked}
-          />}
-  
+          isLoading={isLoading}
+        />}
+
+      {isClientExisting && (
+        <ExistingClientPopup
+          existingClientData={existingClientData}
+          onClose={() => setClientExisting(false)} // Cierra el popup
+        />
+      )}
     </div>
   );
 }
 
 
-const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage, isButtonClicked }) => {
+const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage, isButtonClicked, isLoading }) => {
 
   return (
     <>
@@ -137,12 +164,20 @@ const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage, isBut
           className=' text-white rounded-md shadow-md bg-black border border-white p-2 font-light w-full'
         />
         <p className="font-light text-red-400">{errors.correo?.message}</p>
-        <button
-          type="submit"
-          className={`bg-rose-600 p-2 shadow-md font-bold rounded-md transition-transform duration-150 ${isButtonClicked ? 'scale-95' : 'scale-100'} hover:scale-105`}
-        >
-          Obtené tu descuento
-        </button>
+        {isLoading ? ( // Mostrar spinner si está en modo carga
+          <div className="flex justify-center items-center">
+            <ClipLoader color={"#C9184A"} loading={isLoading} size={50} />
+          </div>
+        ) : (
+          <button
+            type="submit"
+            className={`bg-rose-700 p-2 shadow-md font-bold rounded-md transition-transform duration-150 w-full 
+              ${isButtonClicked ? 'scale-95 bg-rose-500 shadow-lg' : 'scale-100'} 
+              hover:scale-105 hover:bg-rose-600`}
+          >
+            Obtené tu descuento
+          </button>
+        )}
       </form>
     </>
   )
@@ -153,9 +188,33 @@ Welcome.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   register: PropTypes.func.isRequired,
   errors: PropTypes.object.isRequired,
-  isButtonClicked: PropTypes.object.isRequired
+  isButtonClicked: PropTypes.bool.isRequired,
+  isLoading: PropTypes.bool.isRequired
 }
 
+const ExistingClientPopup = ({ existingClientData, onClose }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 sm:p-5 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">{`¡Bienvenido de nuevo,  ${existingClientData.name}! 🎉`}</h2>
+        <p className=" font-light text-gray-600 my-3">{`Parece que ya estás registrado en nuestra base de datos. Usá el código ${existingClientData.discountCode} en tu próxima compra`}</p>
+      
+        <button
+          className="bg-rose-700 p-2 shadow-md font-bold rounded-md hover:bg-rose-600"
+          onClick={onClose}
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  );
+};
+
+ExistingClientPopup.prototype = {
+  existingClientData: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+
+}
 
 const CodeGivawey = ({ isConfettiVisible, balloonAnimation, name, discountCode }) => {
   return (
@@ -163,7 +222,7 @@ const CodeGivawey = ({ isConfettiVisible, balloonAnimation, name, discountCode }
       <div className='flex flex-col justify-center gap-4 text-center'>
         <div className='flex flex-col justify-center gap-3'>
           <h1 className=' text-3xl text-gray-200 font-bold'>{`¡Felicidades, ${name}!`}</h1>
-          <p className='text-xl text-gray-400 font-light'>Mostrá tu código en tienda o en compras en línea</p>
+          <p className='text-xl text-gray-400 font-light'>Toma captura y mostrá tu código en tienda o en compras en línea</p>
         </div>
         <div className=' bg-black p-10 rounded-md shadow-md'>
           <h2 className='sm:text-4xl lg:text-7xl font-bold text-gray-50'>{discountCode}</h2>
