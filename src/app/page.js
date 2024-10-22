@@ -131,35 +131,42 @@ const Welcome = ({ handleSubmit, onSubmit, register, errors, errorMessage, isBut
         <p className='text-xl text-gray-400 font-light'>Completá los siguientes datos:</p>
         {errorMessage && <p className="text-red-500">{errorMessage}</p>} {/* Mostrar mensaje de error */}
       </div>
-      <form className='flex flex-col justify-center gap-2 sm:mt-5 md:mt-0' onSubmit={handleSubmit(onSubmit)}>
+      <form className='flex flex-col justify-center lg:mt-5 gap-2 sm:mt-5 md:mt-0' onSubmit={handleSubmit(onSubmit)}>
+
+        <label className=" text-gray-200 font-bold">Primer nombre: </label>
         <input
           type="text"
           id='nombre'
-          placeholder='Primer nombre'
+          placeholder='Armando'
           {...register('nombre')}
           className=' text-white rounded-md shadow-md p-2 bg-black border border-white font-light w-full'
         />
         <p className=" font-light text-red-400">{errors.nombre?.message}</p>
+
+        <label className=" text-gray-200 font-bold">Primer apellido: </label>
         <input
           type="text"
           id="apellido"
-          placeholder="Primer apellido"
+          placeholder="Morales"
           {...register('apellido')}
           className=' text-white rounded-md shadow-md p-2 bg-black border border-white font-light w-full'
         />
         <p className=" font-light text-red-400">{errors.apellido?.message}</p>
+
+        <label className=" text-gray-200 font-bold">Número de teléfono: </label>
         <input
           type="tel"
           id='telefono'
-          placeholder='Número de teléfono'
+          placeholder='88888888'
           {...register('telefono')}
           className=' text-white rounded-md shadow-md bg-black border border-white p-2 font-light w-full'
         />
         <p className="font-light text-red-400">{errors.telefono?.message}</p>
+        <label className=" text-gray-200 font-bold">Dirección: </label>
         <input
           type="text"
           id='direccion'
-          placeholder='Dirección'
+          placeholder='Ciudad, dirección de domicilio...'
           {...register('direccion')}
           className=' text-white rounded-md shadow-md bg-black border border-white p-2 font-light w-full'
         />
@@ -198,7 +205,7 @@ const ExistingClientPopup = ({ existingClientData, onClose }) => {
       <div className="bg-white p-8 rounded-lg shadow-lg text-center">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">{`¡Bienvenido de nuevo,  ${existingClientData.name}! 🎉`}</h2>
         <p className=" font-light text-gray-600 my-3">{`Parece que ya estás registrado en nuestra base de datos. Usá el código ${existingClientData.discountCode} en tu próxima compra`}</p>
-      
+
         <button
           className="bg-rose-700 p-2 shadow-md font-bold rounded-md hover:bg-rose-600"
           onClick={onClose}
