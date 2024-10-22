@@ -15,6 +15,15 @@ const generateUniqueCode = () => {
     return `OMW-${nanoid()}`;
 };
 
+function normalizeString(str) {
+    if (typeof str !== 'string') return '';
+    return str
+        .toLowerCase() // Convierte a minúsculas
+        .normalize('NFD') // Normaliza los caracteres unicode para separar acentos
+        .replace(/[\u0300-\u036f]/g, ''); // Elimina los diacríticos (tildes)
+}
+
+
 export async function POST(req) {
 
     const { nombre, apellido, telefono, direccion } = await req.json();
@@ -59,8 +68,9 @@ export async function POST(req) {
 
         // Verifica si el cliente ya está registrado
         const clientExists = sheetData.find((row) =>
-            row[0] === nombre &&
-            row[1] === apellido
+            row.length >= 5 &&
+            normalizeString(row[0]) === normalizeString(nombre) &&
+            normalizeString(row[1]) === normalizeString(apellido)
         );
 
         if (clientExists) {
